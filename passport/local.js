@@ -7,6 +7,14 @@ const localStrategy = new LocalStrategy((username, password, done) => {
   User.findOne({ username })
     .then(results => {
       user = results;
+      if (!user) {
+        return Promise.reject({
+          reason: 'LoginError',
+          message: 'Incorrect username',
+          location: 'username',
+          status: 401,
+        });
+      }
       return user.validatePassword(password);
     })
     .then(isValid => {
