@@ -2,15 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
 
+require('dotenv').config();
 const { PORT, CLIENT_ORIGIN } = require('./config');
 const { dbConnect } = require('./db-mongoose');
-// const {dbConnect} = require('./db-knex');
 
 const usersRouter = require('./routes/users');
 
 const app = express();
 
-require('dotenv').config();
 
 app.use(
   morgan(process.env.NODE_ENV === 'production' ? 'common' : 'dev', {
