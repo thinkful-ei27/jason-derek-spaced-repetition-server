@@ -1,12 +1,15 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const passport = require('passport');
 
-require('dotenv').config();
 const { PORT, CLIENT_ORIGIN } = require('./config');
 const { dbConnect } = require('./db-mongoose');
+const localStrategy = require('./passport/local');
 
 const usersRouter = require('./routes/users');
+const authRouter = require('./routes/auth');
 
 const app = express();
 
@@ -25,7 +28,10 @@ app.use(
 
 app.use(express.json());
 
+passport.use(localStrategy);
+
 app.use('/api/users', usersRouter);
+app.use('/api', authRouter);
 
 app.use((err, req, res, next) => {
   if (err.status) {
