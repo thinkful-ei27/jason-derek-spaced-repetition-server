@@ -18,7 +18,7 @@ const createDigest = (req, res, next) => {
 };
 
 const validateStringFields = (req, res, next) => {
-  const stringFields = ['username'];
+  const stringFields = ['name', 'password', 'username'];
   const nonStringField = stringFields.find(
     field => field in req.body && typeof req.body[field] !== 'string'
   );
@@ -35,8 +35,9 @@ const validateStringFields = (req, res, next) => {
 };
 
 router.post('/',
-  createDigest,
+  // validateStringFields must go before createDigest to ensure createDigest gets a string
   validateStringFields,
+  createDigest,
   (req, res, next) => {
     const requiredFields = ['password', 'username'];
     const missingField = requiredFields.find(field => !(field in req.body));
