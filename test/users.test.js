@@ -151,7 +151,21 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
-    it('should reject users with non-trimmed password');
+    it('should reject users with non-trimmed password', function () {
+      return chai
+        .request(app)
+        .post('/api/users')
+        .send({ username, password: ` ${password} `, name })
+
+        .then(res => {
+          expect(res).to.have.status(422);
+          expect(res.body.reason).to.equal('ValidationError');
+          expect(res.body.message).to.equal(
+            'Cannot start or end with whitespace'
+          );
+          expect(res.body.location).to.equal('password');
+        });
+    });
 
     it('should reject users with empty username');
 

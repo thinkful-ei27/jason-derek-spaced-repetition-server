@@ -35,7 +35,7 @@ const validateStringFields = (req, res, next) => {
 };
 
 const validateTrimmedFields = (req, res, next) => {
-  const explicitlyTrimmedFields = ['username'];
+  const explicitlyTrimmedFields = ['username', 'password'];
   const fieldsToTest = explicitlyTrimmedFields.filter(field => field in req.body);
   const nonTrimmedField = fieldsToTest.find(
     field => req.body[field].trim() !== req.body[field]
