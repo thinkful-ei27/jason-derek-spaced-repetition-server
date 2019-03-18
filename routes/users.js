@@ -53,6 +53,21 @@ const validateFieldSizes = (req, res, next) => {
   }
 };
 
+const validateRequiredFields = (req, res, next) => {
+  const requiredFields = ['password', 'username'];
+  const missingField = requiredFields.find(field => !(field in req.body));
+
+  if (missingField) {
+    const err = new Error('Missing field');
+    err.status = 422;
+    err.reason = 'ValidationError';
+    err.location = missingField;
+    return next(err);
+  } else {
+    return next();
+  }
+};
+
 const validateStringFields = (req, res, next) => {
   const stringFields = ['name', 'password', 'username'];
   const nonStringField = stringFields.find(
@@ -89,24 +104,15 @@ const validateTrimmedFields = (req, res, next) => {
 };
 
 router.post('/',
+  validateRequiredFields,
   // validateStringFields must go before the others to ensure they get a string
   validateStringFields,
   validateFieldSizes,
   validateTrimmedFields,
   createDigest,
   (req, res, next) => {
-    const requiredFields = ['password', 'username'];
-    const missingField = requiredFields.find(field => !(field in req.body));
-
-    if (missingField) {
-      const err = new Error('Missing field');
-      err.status = 422;
-      err.reason = 'ValidationError';
-      err.location = missingField;
-      return next(err);
-    }
-
-    let { digest, name, username } = req.body;
+    let { digest, name = '', username } = req.body;
+    name = name.trim();
 
     return User
       .create({
