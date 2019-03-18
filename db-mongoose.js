@@ -1,5 +1,3 @@
-'use strict';
-
 const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 
@@ -17,6 +15,10 @@ function dbDisconnect() {
   return mongoose.disconnect();
 }
 
+function dbDrop() {
+  return mongoose.connection.db.dropDatabase();
+}
+
 function dbGet() {
   return mongoose;
 }
@@ -24,5 +26,6 @@ function dbGet() {
 module.exports = {
   dbConnect,
   dbDisconnect,
+  dbDrop,
   dbGet
 };

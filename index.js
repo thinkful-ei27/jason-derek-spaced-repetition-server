@@ -6,6 +6,8 @@ const { PORT, CLIENT_ORIGIN } = require('./config');
 const { dbConnect } = require('./db-mongoose');
 // const {dbConnect} = require('./db-knex');
 
+const usersRouter = require('./routes/users');
+
 const app = express();
 
 require('dotenv').config();
@@ -21,6 +23,10 @@ app.use(
     origin: CLIENT_ORIGIN
   })
 );
+
+app.use(express.json());
+
+app.use('/api/users', usersRouter);
 
 function runServer(port = PORT) {
   const server = app
