@@ -34,9 +34,28 @@ const validateStringFields = (req, res, next) => {
   }
 };
 
+const validateTrimmedFields = (req, res, next) => {
+  const explicitlyTrimmedFields = ['username'];
+  const fieldsToTest = explicitlyTrimmedFields.filter(field => field in req.body);
+  const nonTrimmedField = fieldsToTest.find(
+    field => req.body[field].trim() !== req.body[field]
+  );
+
+  if (nonTrimmedField) {
+    const err = new Error('Cannot start or end with whitespace');
+    err.status = 422;
+    err.reason = 'ValidationError';
+    err.location = nonTrimmedField;
+    return next(err);
+  } else {
+    return next();
+  }
+};
+
 router.post('/',
   // validateStringFields must go before createDigest to ensure createDigest gets a string
   validateStringFields,
+  validateTrimmedFields,
   createDigest,
   (req, res, next) => {
     const requiredFields = ['password', 'username'];
