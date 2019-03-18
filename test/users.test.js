@@ -20,7 +20,7 @@ describe('Spaced Repetition - Users', function () {
   });
 
   beforeEach(function () {
-
+    return User.createIndexes();
   });
 
   afterEach(function () {
@@ -199,9 +199,44 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
-    it('should reject users with password greater than 72 characters');
+    it('should reject users with password greater than 72 characters', function () {
+      return chai
+        .request(app)
+        .post('/api/users')
+        .send({ username, password: 'a'.repeat(73), name })
 
-    it('should reject users with a duplicate username');
+        .then(res => {
+          expect(res).to.have.status(422);
+          expect(res.body.reason).to.equal('ValidationError');
+          expect(res.body.message).to.equal(
+            'Must be at most 72 characters long'
+          );
+          expect(res.body.location).to.equal('password');
+        });
+    });
+
+    it('should reject users with a duplicate username', function () {
+      return User
+        .create({
+          username,
+          password,
+          name
+        })
+        .then(() => {
+          return chai
+            .request(app)
+            .post('/api/users')
+            .send({ username, password, name });
+        })
+        .then(res => {
+          expect(res).to.have.status(422);
+          expect(res.body.reason).to.equal('ValidationError');
+          expect(res.body.message).to.equal(
+            'Username already taken'
+          );
+          expect(res.body.location).to.equal('username');
+        });
+    });
 
     it('should trim name');
   });

@@ -20,7 +20,7 @@ const createDigest = (req, res, next) => {
 const validateFieldSizes = (req, res, next) => {
   const sizedFields = {
     username: { min: 1 },
-    password: { min: 10 }
+    password: { min: 10, max: 72 }
   };
 
   const objToTest = {};
@@ -115,7 +115,15 @@ router.post('/',
         username,
       })
       .then(user => res.status(201).json(user))
-      .catch(err => next(err));
+      .catch(err => {
+        if (err.code === 11000) {
+          err = new Error('Username already taken');
+          err.status = 422;
+          err.reason = 'ValidationError';
+          err.location = 'username';
+        }
+        next(err);
+      });
   });
 
 module.exports = router;
