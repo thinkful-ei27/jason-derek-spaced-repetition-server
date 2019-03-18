@@ -20,6 +20,7 @@ const createDigest = (req, res, next) => {
 const validateFieldSizes = (req, res, next) => {
   const sizedFields = {
     username: { min: 1 },
+    password: { min: 10 }
   };
 
   const objToTest = {};

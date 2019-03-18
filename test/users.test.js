@@ -183,7 +183,21 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
-    it('should reject users with password less than 10 characters');
+    it('should reject users with password less than 10 characters', function () {
+      return chai
+        .request(app)
+        .post('/api/users')
+        .send({ username, password: '123456789', name })
+
+        .then(res => {
+          expect(res).to.have.status(422);
+          expect(res.body.reason).to.equal('ValidationError');
+          expect(res.body.message).to.equal(
+            'Must be at least 10 characters long'
+          );
+          expect(res.body.location).to.equal('password');
+        });
+    });
 
     it('should reject users with password greater than 72 characters');
 
