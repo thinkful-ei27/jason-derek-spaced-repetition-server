@@ -102,7 +102,16 @@ describe('Spaced Repetition - Authentication', function () {
         });
     });
 
-    it('should reject requests with incorrect password');
+    it('should reject requests with incorrect password', function () {
+      return chai.request(app)
+        .post('/api/login')
+        .send({ username, password: 'wrongPassword' })
+        .then(res => {
+          expect(res).to.have.status(401);
+          expect(res.body).to.be.an('object');
+          expect(res.body.message).to.equal('Incorrect password');
+        });
+    });
   });
 
   describe('POST /api/refresh', function () {

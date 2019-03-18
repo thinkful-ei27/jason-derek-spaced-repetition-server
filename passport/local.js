@@ -18,6 +18,14 @@ const localStrategy = new LocalStrategy((username, password, done) => {
       return user.validatePassword(password);
     })
     .then(isValid => {
+      if (!isValid) {
+        return Promise.reject({
+          reason: 'LoginError',
+          message: 'Incorrect password',
+          location: 'password',
+          status: 401,
+        });
+      }
       return done(null, user);
     })
     .catch(err => done(err));
