@@ -20,7 +20,7 @@ const createDigest = (req, res, next) => {
 router.post('/',
   createDigest,
   (req, res, next) => {
-    const requiredFields = ['username'];
+    const requiredFields = ['password', 'username'];
     const missingField = requiredFields.find(field => !(field in req.body));
 
     if (missingField) {
