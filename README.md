@@ -1,7 +1,7 @@
 # Jason and Derek's Spaced Repetition Server
 [![Build Status](https://travis-ci.org/thinkful-ei27/jason-derek-spaced-repetition-server.svg?branch=master)](https://travis-ci.org/thinkful-ei27/jason-derek-spaced-repetition-server)
 
-A template for developing and deploying Node.js apps.
+This is the server for Jason and Derek's Spaced Repetition project.
 
 ## Getting started
 
