@@ -17,6 +17,41 @@ const createDigest = (req, res, next) => {
   }
 };
 
+const validateFieldSizes = (req, res, next) => {
+  const sizedFields = {
+    username: { min: 1 },
+  };
+
+  const objToTest = {};
+  Object.keys(sizedFields).forEach(field => {
+    if (field in req.body) {
+      objToTest[field] = sizedFields[field];
+    }
+  });
+
+  const tooSmallField = Object.keys(objToTest).find(
+    field => 'min' in sizedFields[field] &&
+      req.body[field].trim().length < sizedFields[field].min
+  );
+
+  const tooLargeField = Object.keys(objToTest).find(
+    field => 'max' in sizedFields[field] &&
+      req.body[field].trim().length > sizedFields[field].max
+  );
+
+  if (tooSmallField || tooLargeField) {
+    const num = tooSmallField ? sizedFields[tooSmallField].min : sizedFields[tooLargeField].max;
+    const err = new Error('');
+    err.status = 422;
+    err.reason = 'ValidationError';
+    err.message = `Must be at ${tooSmallField ? 'least' : 'most'} ${num} characters long`;
+    err.location = tooSmallField || tooLargeField;
+    return next(err);
+  } else {
+    return next();
+  }
+};
+
 const validateStringFields = (req, res, next) => {
   const stringFields = ['name', 'password', 'username'];
   const nonStringField = stringFields.find(
@@ -53,8 +88,9 @@ const validateTrimmedFields = (req, res, next) => {
 };
 
 router.post('/',
-  // validateStringFields must go before createDigest to ensure createDigest gets a string
+  // validateStringFields must go before the others to ensure they get a string
   validateStringFields,
+  validateFieldSizes,
   validateTrimmedFields,
   createDigest,
   (req, res, next) => {
