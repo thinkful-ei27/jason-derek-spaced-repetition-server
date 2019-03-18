@@ -58,7 +58,16 @@ describe('Spaced Repetition - Authentication', function () {
         });
     });
 
-    it('should reject requests without credentials');
+    it('should reject requests without credentials', function () {
+      return chai.request(app)
+        .post('/api/login')
+        .send({})
+        .then(res => {
+          expect(res).to.have.status(400);
+          expect(res.body).to.be.an('object');
+          expect(res.body.message).to.equal('Bad Request');
+        });
+    });
 
     it('should reject requests with empty string username');
 
