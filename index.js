@@ -28,6 +28,15 @@ app.use(express.json());
 
 app.use('/api/users', usersRouter);
 
+app.use((err, req, res, next) => {
+  if (err.status) {
+    const errBody = Object.assign({}, err, { message: err.message });
+    res.status(err.status).json(errBody);
+  } else {
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
 function runServer(port = PORT) {
   const server = app
     .listen(port, () => {

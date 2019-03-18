@@ -20,6 +20,17 @@ const createDigest = (req, res, next) => {
 router.post('/',
   createDigest,
   (req, res, next) => {
+    const requiredFields = ['username'];
+    const missingField = requiredFields.find(field => !(field in req.body));
+
+    if (missingField) {
+      const err = new Error('Missing field');
+      err.status = 422;
+      err.reason = 'ValidationError';
+      err.location = missingField;
+      return next(err);
+    }
+
     let { digest, name, username } = req.body;
 
     return User

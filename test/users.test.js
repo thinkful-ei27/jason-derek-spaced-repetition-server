@@ -59,7 +59,19 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
-    it('should reject users with missing username');
+    it('should reject users with missing username', function () {
+      return chai
+        .request(app)
+        .post('/api/users')
+        .send({ password, name })
+
+        .then(res => {
+          expect(res).to.have.status(422);
+          expect(res.body.reason).to.equal('ValidationError');
+          expect(res.body.message).to.equal('Missing field');
+          expect(res.body.location).to.equal('username');
+        });
+    });
 
     it('should reject users with missing password');
 
