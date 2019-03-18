@@ -115,7 +115,25 @@ describe('Spaced Repetition - Authentication', function () {
   });
 
   describe('POST /api/refresh', function () {
-    it('should return a valid auth token with a newer expiry date');
+    it('should return a valid auth token with a newer expiry date', function () {
+      const user = { username, name };
+      const token = jwt.sign({ user }, JWT_SECRET, { subject: username, expiresIn: '1m' });
+      const decoded = jwt.decode(token);
+
+      return chai.request(app)
+        .post('/api/refresh')
+        .set('Authorization', `Bearer ${token}`)
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body).to.been.an('object');
+          const authToken = res.body.authToken;
+          expect(authToken).to.be.a('string');
+
+          const payload = jwt.verify(authToken, JWT_SECRET);
+          expect(payload.user).to.deep.equal({ username, name });
+          expect(payload.exp).to.be.greaterThan(decoded.exp);
+        });
+    });
 
     it('should reject requests with no credentials');
 
