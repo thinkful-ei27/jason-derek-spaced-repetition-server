@@ -111,8 +111,8 @@ router.post('/',
   validateTrimmedFields,
   createDigest,
   (req, res, next) => {
-    let { digest, name = '', username } = req.body;
-    name = name.trim();
+    let { digest, firstName = '', username } = req.body;
+    name = firstName.trim();
 
     return User
       .create({
