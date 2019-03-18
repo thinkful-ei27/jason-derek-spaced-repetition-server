@@ -135,10 +135,32 @@ describe('Spaced Repetition - Authentication', function () {
         });
     });
 
-    it('should reject requests with no credentials');
+    it('should reject requests with no credentials', function () {
+      return chai.request(app)
+        .post('/api/refresh')
+        .then(res => {
+          expect(res).to.have.status(401);
+        });
+    });
 
-    it('should reject requests with an invalid token');
+    it('should reject requests with an invalid token', function () {
+      const token = jwt.sign({ username, password, name }, 'Incorrect Secret');
+      return chai.request(app)
+        .post('/api/refresh')
+        .set('Authorization', `Bearer ${token}`)
+        .then(res => {
+          expect(res).to.have.status(401);
+        });
+    });
 
-    it('should reject requests with an expired token');
+    it('should reject requests with an expired token', function () {
+      const token = jwt.sign({ username, password, name }, JWT_SECRET, { subject: username, expiresIn: Math.floor(Date.now() / 1000) - 10 });
+      return chai.request(app)
+        .post('/api/refresh')
+        .set('Authorization', `Bearer ${token}`)
+        .then(res => {
+          expect(res).to.have.status(401);
+        });
+    });
   });
 });
