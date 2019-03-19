@@ -340,6 +340,23 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
+    it('should move to the next question after a guess', function () {
+      const newGuess = {
+        guess: user.signs[0].answer,
+      };
+      return chai.request(app)
+        .post('/api/users/guess')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newGuess)
+        .then(res => {
+          expect(res.body.answer).to.equal(newGuess.guess);
+          return User.findOne({ username: user.username });
+        })
+        .then(updatedUser => {
+          expect(updatedUser.signs[0].answer).to.not.equal(newGuess.guess);
+        });
+    });
+
     it('should return an error when missing "guess" field', function () {
       const missingGuess = {
       };
