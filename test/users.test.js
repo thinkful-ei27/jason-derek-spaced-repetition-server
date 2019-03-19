@@ -304,7 +304,7 @@ describe('Spaced Repetition - Users', function () {
   });
 
   describe('POST /api/users/guess', function () {
-    it.only('should return true when given a correct guess', function () {
+    it('should return true when given a correct guess', function () {
       const newGuess = {
         guess: user.signs[0].answer,
       };
@@ -322,7 +322,23 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
-    it('should return false when given an incorrect guess');
+    it('should return false when given an incorrect guess', function () {
+      const badGuess = {
+        guess: 'idontknow',
+      };
+      return chai.request(app)
+        .post('/api/users/guess')
+        .set('Authorization', `Bearer ${token}`)
+        .send(badGuess)
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res).to.be.json;
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.keys('correct', 'answer');
+          expect(res.body.correct).to.equal(false);
+          expect(res.body.answer).to.not.equal(badGuess.guess);
+        });
+    });
 
     it('should return an error when missing "submission" field');
 

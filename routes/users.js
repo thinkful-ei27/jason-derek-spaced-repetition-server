@@ -145,11 +145,15 @@ router.get('/question', jwtAuth, (req, res, next) => {
 });
 
 router.post('/guess', jwtAuth, (req, res, next) => {
-  const obj = {
-    answer: 'stop',
-    correct: true,
-  };
-  res.json(obj);
+  const userId = req.user.id;
+  const guess = req.body.guess;
+  return User.findById(userId)
+    .then(user => {
+      const answer = user.signs[0].answer;
+      const correct = guess === answer ? true : false;
+      res.json({ answer, correct });
+    })
+    .catch(err => next(err));
 });
 
 module.exports = router;
