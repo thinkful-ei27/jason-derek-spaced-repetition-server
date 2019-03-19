@@ -146,7 +146,14 @@ router.get('/question', jwtAuth, (req, res, next) => {
 
 router.post('/guess', jwtAuth, (req, res, next) => {
   const userId = req.user.id;
-  const guess = req.body.guess;
+  const { guess } = req.body;
+
+  if (!guess) {
+    const err = new Error('Missing `guess` in request body');
+    err.status = 400;
+    return next(err);
+  }
+
   return User.findById(userId)
     .then(user => {
       const answer = user.signs[0].answer;

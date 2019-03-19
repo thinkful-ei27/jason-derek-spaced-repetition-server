@@ -340,9 +340,22 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
-    it('should return an error when missing "submission" field');
+    it('should return an error when missing "guess" field', function () {
+      const missingGuess = {
+      };
+      return chai.request(app)
+        .post('/api/users/guess')
+        .set('Authorization', `Bearer ${token}`)
+        .send(missingGuess)
+        .then(res => {
+          expect(res).to.have.status(400);
+          expect(res).to.be.json;
+          expect(res.body).to.be.a('object');
+          expect(res.body.message).to.equal('Missing `guess` in request body');
+        });
+    });
 
-    it('should return an error when "submission" is an empty string');
+    it('should return an error when "guess" is an empty string');
 
     it('should catch errors and respond properly');
   });
