@@ -36,16 +36,17 @@ describe('Spaced Repetition - Signs', function () {
   after(() => dbDisconnect());
 
   describe('GET /api/signs', function () {
-    it('should return the first sign', function () {
+    it.only('should return the first sign', function () {
       return chai.request(app)
         .get('/api/signs')
         .set('Authorization', `Bearer ${token}`)
         .then(res => {
+          const req = res.request;
           expect(res).to.have.status(200);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
           expect(res.body).to.include.all.keys('sign');
-          expect(res.body.sign).to.equal(signs[0]);
+          expect(res.body.sign).to.equal(`${req.protocol}//${req.host}/assets/${signs[0]}`);
         });
     });
 
