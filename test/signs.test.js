@@ -48,7 +48,7 @@ describe('Spaced Repetition - Signs', function () {
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
           expect(res.body).to.include.all.keys('sign');
-          expect(res.body.sign).to.equal(`${req.protocol}//${req.host}/assets/${user.signs[0].sign}`);
+          expect(res.body.sign).to.equal(`${req.protocol}//${req.host}/signs/${user.signs[0].sign}`);
         });
     });
 
