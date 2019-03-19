@@ -8,7 +8,7 @@ router.get('/', (req, res, next) => {
   const userId = req.user.id;
   return User.findById(userId)
     .then(user => {
-      res.json({ sign: `${req.protocol}://${req.get('host')}/assets/${user.signs[0].sign}` });
+      res.json({ sign: `${req.protocol}://${req.get('host')}/signs/${user.signs[0].sign}` });
     })
     .catch(err => next(err));
 });
