@@ -66,4 +66,32 @@ describe('Spaced Repetition - Signs', function () {
         });
     });
   });
+
+  describe('POST /api/signs', function () {
+    it.only('should return true when given a correct guess', function () {
+      const newGuess = {
+        guess: user.signs[0].answer,
+      };
+      return chai.request(app)
+        .post('/api/signs')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newGuess)
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res).to.be.json;
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.keys('correct', 'answer');
+          expect(res.body.correct).to.equal(true);
+          expect(res.body.answer).to.equal(newGuess.answer);
+        });
+    });
+
+    it('should return false when given an incorrect guess');
+
+    it('should return an error when missing "submission" field');
+
+    it('should return an error when "submission" is an empty string');
+
+    it('should catch errors and respond properly');
+  });
 });
