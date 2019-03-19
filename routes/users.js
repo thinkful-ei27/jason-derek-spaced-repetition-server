@@ -1,6 +1,6 @@
 const express = require('express');
-
 const User = require('../models/user');
+const signs = require('../db/signs');
 
 const router = express.Router();
 
@@ -119,6 +119,7 @@ router.post('/',
         name,
         password: digest,
         username,
+        signs: signs,
       })
       .then(user => res.status(201).json(user))
       .catch(err => {

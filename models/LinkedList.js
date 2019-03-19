@@ -1,3 +1,5 @@
+// We are not actually going to use this; it is just here for reference at this point 
+
 class _Node {
   constructor(value, next) {
     this.value = value;

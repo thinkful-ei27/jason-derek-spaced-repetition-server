@@ -32,7 +32,7 @@ describe('Spaced Repetition - Users', function () {
   });
 
   describe('POST /api/users', function () {
-    it('should create a new user with lowercase username', function () {
+    it.only('should create a new user with lowercase username', function () {
       let res;
       return chai
         .request(app)
@@ -52,6 +52,8 @@ describe('Spaced Repetition - Users', function () {
           expect(user).to.exist;
           expect(user.id).to.equal(res.body.id);
           expect(user.name).to.equal(name);
+          expect(user.signs).to.be.an('array');
+          expect(user.signs[0]).to.have.keys('sign', 'answer');
           return user.validatePassword(password);
         })
         .then(isValid => {

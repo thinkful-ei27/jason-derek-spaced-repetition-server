@@ -5,6 +5,7 @@ const schema = mongoose.Schema({
   username: { type: String, lowercase: true, required: true, unique: true, },
   password: { required: true, type: String, },
   name: String,
+  signs: [Object],
 });
 
 schema.set('toJSON', {
@@ -13,6 +14,7 @@ schema.set('toJSON', {
     delete result._id;
     delete result.__v;
     delete result.password;
+    delete result.signs;
   }
 });
 

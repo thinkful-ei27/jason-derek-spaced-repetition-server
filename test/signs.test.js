@@ -36,7 +36,7 @@ describe('Spaced Repetition - Signs', function () {
   after(() => dbDisconnect());
 
   describe('GET /api/signs', function () {
-    it.only('should return the first sign', function () {
+    it('should return the first sign', function () {
       return chai.request(app)
         .get('/api/signs')
         .set('Authorization', `Bearer ${token}`)
