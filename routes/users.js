@@ -147,7 +147,7 @@ router.get('/question', jwtAuth, (req, res, next) => {
 router.post('/guess', jwtAuth, (req, res, next) => {
   const userId = req.user.id;
   const { guess } = req.body;
-  let answer, correct;
+  let answer, correct, guessesMade, guessesCorrect;
 
   if (!guess) {
     const err = new Error('Missing `guess` in request body');
@@ -159,10 +159,12 @@ router.post('/guess', jwtAuth, (req, res, next) => {
     .then(user => {
       answer = user.signs[0].answer;
       correct = guess === answer ? true : false;
+      guessesMade = user.guessesMade + 1;
+      guessesCorrect = correct ? user.guessesCorrect + 1 : user.guessesCorrect;
       const signs = [...user.signs.slice(1), ...user.signs.slice(0, 1)];
-      return User.updateOne({ _id: userId }, { signs });
+      return User.updateOne({ _id: userId }, { signs, guessesMade, guessesCorrect });
     })
-    .then(() => res.json({ answer, correct }))
+    .then(() => res.json({ answer, correct, guessesMade, guessesCorrect }))
     .catch(err => next(err));
 });
 

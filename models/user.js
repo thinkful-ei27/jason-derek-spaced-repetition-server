@@ -6,6 +6,8 @@ const schema = mongoose.Schema({
   password: { required: true, type: String, },
   name: String,
   signs: [Object],
+  guessesMade: { type: Number, default: 0 },
+  guessesCorrect: { type: Number, default: 0 },
 });
 
 schema.set('toJSON', {

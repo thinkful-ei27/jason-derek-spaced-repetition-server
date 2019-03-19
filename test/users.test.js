@@ -56,7 +56,7 @@ describe('Spaced Repetition - Users', function () {
           res = _res;
           expect(res).to.have.status(201);
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('id', 'username', 'name');
+          expect(res.body).to.have.keys('id', 'username', 'name', 'guessesMade', 'guessesCorrect');
           expect(res.body.id).to.exist;
           expect(res.body.username).to.equal(username.toLowerCase());
           expect(res.body.name).to.equal(name);
@@ -262,7 +262,7 @@ describe('Spaced Repetition - Users', function () {
         .then(res => {
           expect(res).to.have.status(201);
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('id', 'username', 'name');
+          expect(res.body).to.have.keys('id', 'username', 'name', 'guessesMade', 'guessesCorrect');
           expect(res.body.name).to.equal(name);
           return User.findOne({ username });
         })
@@ -316,9 +316,11 @@ describe('Spaced Repetition - Users', function () {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('correct', 'answer');
+          expect(res.body).to.have.keys('correct', 'answer', 'guessesMade', 'guessesCorrect');
           expect(res.body.correct).to.equal(true);
           expect(res.body.answer).to.equal(newGuess.guess);
+          expect(res.body.guessesMade).to.equal(user.guessesMade + 1);
+          expect(res.body.guessesCorrect).to.equal(user.guessesCorrect + 1);
         });
     });
 
@@ -334,9 +336,11 @@ describe('Spaced Repetition - Users', function () {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('correct', 'answer');
+          expect(res.body).to.have.keys('correct', 'answer', 'guessesMade', 'guessesCorrect');
           expect(res.body.correct).to.equal(false);
           expect(res.body.answer).to.not.equal(badGuess.guess);
+          expect(res.body.guessesMade).to.equal(user.guessesMade + 1);
+          expect(res.body.guessesCorrect).to.equal(user.guessesCorrect);
         });
     });
 
