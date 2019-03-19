@@ -32,7 +32,7 @@ describe('Spaced Repetition - Users', function () {
   });
 
   describe('POST /api/users', function () {
-    it.only('should create a new user with lowercase username', function () {
+    it('should create a new user with lowercase username', function () {
       let res;
       return chai
         .request(app)
