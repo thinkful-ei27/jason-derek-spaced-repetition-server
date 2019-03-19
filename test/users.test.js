@@ -355,9 +355,40 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
-    it('should return an error when "guess" is an empty string');
+    it('should return an error when "guess" is an empty string', function () {
+      const emptyGuess = {
+        guess: '',
+      };
+      return chai.request(app)
+        .post('/api/users/guess')
+        .set('Authorization', `Bearer ${token}`)
+        .send(emptyGuess)
+        .then(res => {
+          expect(res).to.have.status(400);
+          expect(res).to.be.json;
+          expect(res.body).to.be.a('object');
+          expect(res.body.message).to.equal('Missing `guess` in request body');
+        });
+    });
 
-    it('should catch errors and respond properly');
+    it('should catch errors and respond properly', function () {
+      sandbox.stub(User, 'findById').throws('FakeError');
+
+      const newGuess = {
+        guess: user.signs[0].answer,
+      };
+
+      return chai.request(app)
+        .post('/api/users/guess')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newGuess)
+        .then(res => {
+          expect(res).to.have.status(500);
+          expect(res).to.be.json;
+          expect(res.body).to.be.a('object');
+          expect(res.body.message).to.equal('Internal Server Error');
+        });
+    });
   });
 
 });
