@@ -144,4 +144,12 @@ router.get('/question', jwtAuth, (req, res, next) => {
     .catch(err => next(err));
 });
 
+router.post('/guess', jwtAuth, (req, res, next) => {
+  const obj = {
+    answer: 'stop',
+    correct: true,
+  };
+  res.json(obj);
+});
+
 module.exports = router;
