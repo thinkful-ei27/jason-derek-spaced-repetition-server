@@ -11,7 +11,6 @@ const jwtStrategy = require('./passport/jwt');
 
 const usersRouter = require('./routes/users');
 const authRouter = require('./routes/auth');
-const signsRouter = require('./routes/signs');
 
 const app = express();
 
@@ -35,10 +34,7 @@ app.use(express.json());
 passport.use(localStrategy);
 passport.use(jwtStrategy);
 
-const jwtAuth = passport.authenticate('jwt', { session: false, failWithError: true });
-
 app.use('/api/users', usersRouter);
-app.use('/api/signs', jwtAuth, signsRouter);
 app.use('/api', authRouter);
 
 app.use((err, req, res, next) => {

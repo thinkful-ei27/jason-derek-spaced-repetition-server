@@ -276,7 +276,7 @@ describe('Spaced Repetition - Users', function () {
   describe('GET /api/users/question', function () {
     it('should return the first sign', function () {
       return chai.request(app)
-        .get('/api/signs')
+        .get('/api/users/question')
         .set('Authorization', `Bearer ${token}`)
         .then(res => {
           const req = res.request;
@@ -284,7 +284,7 @@ describe('Spaced Repetition - Users', function () {
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
           expect(res.body).to.include.all.keys('sign');
-          expect(res.body.sign).to.equal(`${req.protocol}//${req.host}/assets/${user.signs[0].sign}`);
+          expect(res.body.sign).to.equal(`${req.protocol}//${req.host}/signs/${user.signs[0].sign}`);
         });
     });
 
@@ -292,7 +292,7 @@ describe('Spaced Repetition - Users', function () {
       sandbox.stub(User, 'findById').throws('FakeError');
 
       return chai.request(app)
-        .get('/api/signs')
+        .get('/api/users/question')
         .set('Authorization', `Bearer ${token}`)
         .then(res => {
           expect(res).to.have.status(500);
@@ -301,6 +301,34 @@ describe('Spaced Repetition - Users', function () {
           expect(res.body.message).to.equal('Internal Server Error');
         });
     });
+  });
+
+  describe('POST /api/users/guess', function () {
+    it('should return true when given a correct guess', function () {
+      const newGuess = {
+        guess: user.signs[0].answer,
+      };
+      return chai.request(app)
+        .post('/api/users/guess')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newGuess)
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res).to.be.json;
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.have.keys('correct', 'answer');
+          expect(res.body.correct).to.equal(true);
+          expect(res.body.answer).to.equal(newGuess.answer);
+        });
+    });
+
+    it('should return false when given an incorrect guess');
+
+    it('should return an error when missing "submission" field');
+
+    it('should return an error when "submission" is an empty string');
+
+    it('should catch errors and respond properly');
   });
 
 });
