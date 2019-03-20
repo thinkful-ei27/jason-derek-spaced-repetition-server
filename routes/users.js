@@ -199,15 +199,19 @@ router.post('/guess', jwtAuth, (req, res, next) => {
       // Update the head
       user.head = nextIdx;
 
-      // Add learned words
+      // Add/remove learned words
+      const learnedIndex = user.learned.findIndex(i => i.sign === currSign.sign);
       if (currSign.m >= 16) {
-        const index = user.learned.findIndex(i => i.sign === currSign.sign);
         const learnedObj = {
           sign: currSign.sign,
           guessesMade: currSign.guessesMade,
           guessesCorrect: currSign.guessesCorrect,
         };
-        index !== -1 ? user.learned.set(index, learnedObj) : user.learned.push(learnedObj);
+        learnedIndex !== -1 ? user.learned.set(learnedIndex, learnedObj) : user.learned.push(learnedObj);
+      } else {
+        if (learnedIndex !== -1) {
+          user.learned.splice(learnedIndex, 1);
+        }
       }
 
       // Save changes to database

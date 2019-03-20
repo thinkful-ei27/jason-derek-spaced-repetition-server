@@ -495,7 +495,32 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
-    it('should remove the sign from the `learned` list if `m` drops below 16');
+    it('should remove the sign from the `learned` list if `m` drops below 16', function () {
+      const badGuess = {
+        guess: 'iforgottheanswer',
+      };
+      const currSign = user.signs[user.head];
+      currSign.m = 16;
+      user.signs.set(user.head, currSign);
+      user.learned.push({ sign: currSign.sign, guessesMade: currSign.guessesMade, guessesCorrect: currSign.guessesCorrect });
+      return user.save()
+        .then(user => {
+          expect(user.learned.length).to.equal(1);
+          return chai.request(app)
+            .post('/api/users/guess')
+            .set('Authorization', `Bearer ${token}`)
+            .send(badGuess);
+        })
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body.correct).to.equal(false);
+          expect(res.body.user.learned.length).to.equal(0);
+          return User.findOne({ username: user.username });
+        })
+        .then(updatedUser => {
+          expect(updatedUser.signs[0].m).to.equal(1);
+        });
+    });
 
     it('should return an error when missing "guess" field', function () {
       const missingGuess = {
