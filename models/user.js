@@ -6,6 +6,7 @@ const schema = mongoose.Schema({
   password: { required: true, type: String, },
   name: String,
   signs: [Object],
+  head: { type: Number, default: 0 },
   guessesMade: { type: Number, default: 0 },
   guessesCorrect: { type: Number, default: 0 },
 });

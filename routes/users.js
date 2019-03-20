@@ -157,14 +157,53 @@ router.post('/guess', jwtAuth, (req, res, next) => {
 
   return User.findById(userId)
     .then(user => {
-      answer = user.signs[0].answer;
+      // Get the current sign and the next index
+      const currSign = user.head ? user.signs[user.head] : user.signs[0];
+      const nextIdx = currSign.next;
+
+      // Get the answer and determine if it is correct
+      answer = currSign.answer;
       correct = guess === answer ? true : false;
-      guessesMade = user.guessesMade + 1;
-      guessesCorrect = correct ? user.guessesCorrect + 1 : user.guessesCorrect;
-      const signs = [...user.signs.slice(1), ...user.signs.slice(0, 1)];
-      return User.updateOne({ _id: userId }, { signs, guessesMade, guessesCorrect });
+
+      // Update the score
+      user.guessesMade = user.guessesMade + 1;
+      user.guessesCorrect = correct ? user.guessesCorrect + 1 : user.guessesCorrect;
+
+      // Update the linked list
+      if (correct) {
+        currSign.m = currSign.m * 2;
+      } else {
+        currSign.m = 1;
+      }
+
+      let targetNode = currSign;
+      let targetIdx;
+      for (let i = 0; i < currSign.m; i++) {
+        targetIdx = targetNode.next;
+        targetNode = user.signs[targetNode.next];
+      }
+
+      currSign.next = targetNode.next;
+      targetNode.next = user.head;
+
+      user.signs.set(user.head, currSign);
+      user.signs.set(targetIdx, targetNode);
+
+      // Update the head
+      user.head = nextIdx;
+
+
+      // Save changes to database
+      return user.save();
     })
-    .then(() => res.json({ answer, correct, guessesMade, guessesCorrect }))
+    .then(updatedUser => {
+      return res.json({
+        answer,
+        correct,
+        guessesMade: updatedUser.guessesMade,
+        guessesCorrect: updatedUser.guessesCorrect,
+      });
+    })
     .catch(err => next(err));
 });
 

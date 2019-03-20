@@ -56,7 +56,7 @@ describe('Spaced Repetition - Users', function () {
           res = _res;
           expect(res).to.have.status(201);
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('id', 'username', 'name', 'guessesMade', 'guessesCorrect');
+          expect(res.body).to.have.keys('id', 'head', 'username', 'name', 'guessesMade', 'guessesCorrect');
           expect(res.body.id).to.exist;
           expect(res.body.username).to.equal(username.toLowerCase());
           expect(res.body.name).to.equal(name);
@@ -67,7 +67,7 @@ describe('Spaced Repetition - Users', function () {
           expect(user.id).to.equal(res.body.id);
           expect(user.name).to.equal(name);
           expect(user.signs).to.be.an('array');
-          expect(user.signs[0]).to.have.keys('sign', 'answer');
+          expect(user.signs[0]).to.have.keys('sign', 'answer', 'm', 'next');
           return user.validatePassword(password);
         })
         .then(isValid => {
@@ -262,7 +262,7 @@ describe('Spaced Repetition - Users', function () {
         .then(res => {
           expect(res).to.have.status(201);
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('id', 'username', 'name', 'guessesMade', 'guessesCorrect');
+          expect(res.body).to.have.keys('id', 'username', 'name', 'guessesMade', 'guessesCorrect', 'head');
           expect(res.body.name).to.equal(name);
           return User.findOne({ username });
         })
@@ -357,7 +357,27 @@ describe('Spaced Repetition - Users', function () {
           return User.findOne({ username: user.username });
         })
         .then(updatedUser => {
-          expect(updatedUser.signs[0].answer).to.not.equal(newGuess.guess);
+          expect(updatedUser.signs[updatedUser.head].answer).to.not.equal(newGuess.guess);
+        });
+    });
+
+    it.only('should present the question again sooner if the question was guessed wrong', function () {
+      const badGuess = {
+        guess: 'idontknow',
+      };
+      return chai.request(app)
+        .post('/api/users/guess')
+        .set('Authorization', `Bearer ${token}`)
+        .send(badGuess)
+        .then(res => {
+          expect(res.body.correct).to.equal(false);
+          return User.findOne({ username: user.username });
+        })
+        .then(updatedUser => {
+          expect(updatedUser.head).to.equal(1);
+          expect(updatedUser.signs[0].m).to.equal(1);
+          expect(updatedUser.signs[0].next).to.equal(2);
+          expect(updatedUser.signs[1].next).to.equal(0);
         });
     });
 
