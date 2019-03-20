@@ -317,7 +317,7 @@ describe('Spaced Repetition - Users', function () {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('correct', 'answer', 'guessesMade', 'guessesCorrect', 'sign');
+          expect(res.body).to.have.keys('correct', 'answer', 'guessesMade', 'guessesCorrect', 'sign', 'user');
           expect(res.body.correct).to.equal(true);
           expect(res.body.answer).to.equal(newGuess.guess);
           expect(res.body.guessesMade).to.equal(user.guessesMade + 1);
@@ -339,13 +339,15 @@ describe('Spaced Repetition - Users', function () {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('correct', 'answer', 'guessesMade', 'guessesCorrect', 'sign');
+          expect(res.body).to.have.keys('correct', 'answer', 'guessesMade', 'guessesCorrect', 'sign', 'user');
           expect(res.body.correct).to.equal(false);
           expect(res.body.answer).to.not.equal(badGuess.guess);
           expect(res.body.guessesMade).to.equal(user.guessesMade + 1);
           expect(res.body.guessesCorrect).to.equal(user.guessesCorrect);
           expect(res.body.sign.guessesMade).to.equal(user.signs[0].guessesMade + 1);
           expect(res.body.sign.guessesCorrect).to.equal(user.signs[0].guessesCorrect);
+          expect(res.body.user.learned).to.be.an('array');
+          expect(res.body.user.learned.length).to.equal(0);
         });
     });
 
@@ -433,7 +435,35 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
-    it('should add the sign to the `learned` list once `m` is 16 or more');
+    it('should add the sign to the `learned` list once `m` is 16 or more', function () {
+      const newGuess = {
+        guess: user.signs[user.head].answer,
+      };
+      const currSign = user.signs[user.head];
+      currSign.m = 8;
+      user.signs.set(user.head, currSign);
+      return user.save()
+        .then(() => {
+          return chai.request(app)
+            .post('/api/users/guess')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newGuess);
+        })
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body.correct).to.equal(true);
+          expect(res.body.user.learned.length).to.equal(1);
+          expect(res.body.user.learned[0].sign).to.equal(currSign.sign);
+          expect(res.body.user.learned[0].guessesMade).to.equal(currSign.guessesMade + 1);
+          expect(res.body.user.learned[0].guessesCorrect).to.equal(currSign.guessesCorrect + 1);
+          return User.findOne({ username: user.username });
+        })
+        .then(updatedUser => {
+          expect(updatedUser.signs[0].m).to.equal(16);
+        });
+    });
+
+    it('should update `guessesMade` and `guessesCorrect` on learned items when guessed correctly');
 
     it('should remove the sign from the `learned` list if `m` drops below 16');
 

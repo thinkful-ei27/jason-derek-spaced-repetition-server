@@ -199,20 +199,36 @@ router.post('/guess', jwtAuth, (req, res, next) => {
       // Update the head
       user.head = nextIdx;
 
+      // Add learned words
+      if (currSign.m >= 16) {
+        const learnedObj = {
+          sign: currSign.sign,
+          guessesMade: currSign.guessesMade,
+          guessesCorrect: currSign.guessesCorrect,
+        };
+        user.learned.push(learnedObj);
+      }
+
       // Save changes to database
       return user.save();
     })
     .then(updatedUser => {
+      const { guessesMade, guessesCorrect, learned } = updatedUser;
       return res.json({
         answer,
         correct,
-        guessesMade: updatedUser.guessesMade,
-        guessesCorrect: updatedUser.guessesCorrect,
+        guessesMade,
+        guessesCorrect,
         sign: {
           answer,
           correct,
           guessesMade: currSign.guessesMade,
           guessesCorrect: currSign.guessesCorrect,
+        },
+        user: {
+          guessesMade,
+          guessesCorrect,
+          learned,
         },
       });
     })
