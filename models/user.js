@@ -9,6 +9,7 @@ const schema = mongoose.Schema({
   head: { type: Number, default: 0 },
   guessesMade: { type: Number, default: 0 },
   guessesCorrect: { type: Number, default: 0 },
+  learned: [Object],
 });
 
 schema.set('toJSON', {

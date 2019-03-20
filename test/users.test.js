@@ -56,10 +56,11 @@ describe('Spaced Repetition - Users', function () {
           res = _res;
           expect(res).to.have.status(201);
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('id', 'head', 'username', 'name', 'guessesMade', 'guessesCorrect');
+          expect(res.body).to.have.keys('id', 'head', 'username', 'name', 'guessesMade', 'guessesCorrect', 'learned');
           expect(res.body.id).to.exist;
           expect(res.body.username).to.equal(username.toLowerCase());
           expect(res.body.name).to.equal(name);
+          expect(res.body.learned).to.be.an('array');
           return User.findOne({ username });
         })
         .then(user => {
@@ -262,7 +263,7 @@ describe('Spaced Repetition - Users', function () {
         .then(res => {
           expect(res).to.have.status(201);
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.keys('id', 'username', 'name', 'guessesMade', 'guessesCorrect', 'head');
+          expect(res.body).to.have.keys('id', 'username', 'name', 'guessesMade', 'guessesCorrect', 'head', 'learned');
           expect(res.body.name).to.equal(name);
           return User.findOne({ username });
         })
@@ -431,6 +432,10 @@ describe('Spaced Repetition - Users', function () {
           expect(updatedUser.signs[9].next).to.equal(0);
         });
     });
+
+    it('should add the sign to the `learned` list once `m` is 16 or more');
+
+    it('should remove the sign from the `learned` list if `m` drops below 16');
 
     it('should return an error when missing "guess" field', function () {
       const missingGuess = {
