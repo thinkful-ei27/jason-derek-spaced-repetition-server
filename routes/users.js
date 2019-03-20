@@ -147,7 +147,7 @@ router.get('/question', jwtAuth, (req, res, next) => {
 router.post('/guess', jwtAuth, (req, res, next) => {
   const userId = req.user.id;
   const { guess } = req.body;
-  let answer, correct, guessesMade, guessesCorrect;
+  let answer, correct, currSign;
 
   if (!guess) {
     const err = new Error('Missing `guess` in request body');
@@ -158,7 +158,7 @@ router.post('/guess', jwtAuth, (req, res, next) => {
   return User.findById(userId)
     .then(user => {
       // Get the current sign and the next index
-      const currSign = user.head ? user.signs[user.head] : user.signs[0];
+      currSign = user.head ? user.signs[user.head] : user.signs[0];
       const nextIdx = currSign.next;
 
       // Get the answer and determine if it is correct
@@ -168,6 +168,9 @@ router.post('/guess', jwtAuth, (req, res, next) => {
       // Update the score
       user.guessesMade = user.guessesMade + 1;
       user.guessesCorrect = correct ? user.guessesCorrect + 1 : user.guessesCorrect;
+      currSign.guessesMade = currSign.guessesMade ? currSign.guessesMade + 1 : 1;
+      currSign.guessesCorrect = currSign.guessesCorrect ? currSign.guessesCorrect : 0;
+      currSign.guessesCorrect = correct ? currSign.guessesCorrect + 1 : currSign.guessesCorrect;
 
       // Update the linked list
       if (correct) {
@@ -205,6 +208,12 @@ router.post('/guess', jwtAuth, (req, res, next) => {
         correct,
         guessesMade: updatedUser.guessesMade,
         guessesCorrect: updatedUser.guessesCorrect,
+        sign: {
+          answer,
+          correct,
+          guessesMade: currSign.guessesMade,
+          guessesCorrect: currSign.guessesCorrect,
+        },
       });
     })
     .catch(err => next(err));
