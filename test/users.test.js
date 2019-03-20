@@ -361,7 +361,7 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
-    it.only('should present the question again sooner if the question was guessed wrong', function () {
+    it('should present the question again sooner if the question was guessed wrong', function () {
       const badGuess = {
         guess: 'idontknow',
       };
@@ -378,6 +378,26 @@ describe('Spaced Repetition - Users', function () {
           expect(updatedUser.signs[0].m).to.equal(1);
           expect(updatedUser.signs[0].next).to.equal(2);
           expect(updatedUser.signs[1].next).to.equal(0);
+        });
+    });
+
+    it('should present the question again later if the question was guessed correctly', function () {
+      const newGuess = {
+        guess: user.signs[0].answer,
+      };
+      return chai.request(app)
+        .post('/api/users/guess')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newGuess)
+        .then(res => {
+          expect(res.body.correct).to.equal(true);
+          return User.findOne({ username: user.username });
+        })
+        .then(updatedUser => {
+          expect(updatedUser.head).to.equal(1);
+          expect(updatedUser.signs[0].m).to.equal(2);
+          expect(updatedUser.signs[0].next).to.equal(3);
+          expect(updatedUser.signs[2].next).to.equal(0);
         });
     });
 

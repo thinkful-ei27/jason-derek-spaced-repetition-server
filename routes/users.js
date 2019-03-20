@@ -192,7 +192,6 @@ router.post('/guess', jwtAuth, (req, res, next) => {
       // Update the head
       user.head = nextIdx;
 
-
       // Save changes to database
       return user.save();
     })
