@@ -201,12 +201,13 @@ router.post('/guess', jwtAuth, (req, res, next) => {
 
       // Add learned words
       if (currSign.m >= 16) {
+        const index = user.learned.findIndex(i => i.sign === currSign.sign);
         const learnedObj = {
           sign: currSign.sign,
           guessesMade: currSign.guessesMade,
           guessesCorrect: currSign.guessesCorrect,
         };
-        user.learned.push(learnedObj);
+        index !== -1 ? user.learned.set(index, learnedObj) : user.learned.push(learnedObj);
       }
 
       // Save changes to database

@@ -463,7 +463,37 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
-    it('should update `guessesMade` and `guessesCorrect` on learned items when guessed correctly');
+    it('should update `guessesMade` and `guessesCorrect` on learned items when guessed correctly', function () {
+      const newGuess = {
+        guess: user.signs[user.head].answer,
+      };
+      const currSign = user.signs[user.head];
+      currSign.m = 16;
+      user.signs.set(user.head, currSign);
+      user.learned.push({ sign: currSign.sign, guessesMade: currSign.guessesMade, guessesCorrect: currSign.guessesCorrect });
+      return user.save()
+        .then(user => {
+          expect(user.learned.length).to.equal(1);
+          expect(user.learned[0].guessesMade).to.equal(currSign.guessesMade);
+          expect(user.learned[0].guessesCorrect).to.equal(currSign.guessesCorrect);
+          return chai.request(app)
+            .post('/api/users/guess')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newGuess);
+        })
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body.correct).to.equal(true);
+          expect(res.body.user.learned.length).to.equal(1);
+          expect(res.body.user.learned[0].sign).to.equal(currSign.sign);
+          expect(res.body.user.learned[0].guessesMade).to.equal(currSign.guessesMade + 1);
+          expect(res.body.user.learned[0].guessesCorrect).to.equal(currSign.guessesCorrect + 1);
+          return User.findOne({ username: user.username });
+        })
+        .then(updatedUser => {
+          expect(updatedUser.signs[0].m).to.equal(32);
+        });
+    });
 
     it('should remove the sign from the `learned` list if `m` drops below 16');
 
