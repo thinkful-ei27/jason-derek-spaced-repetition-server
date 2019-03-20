@@ -179,8 +179,12 @@ router.post('/guess', jwtAuth, (req, res, next) => {
       let targetNode = currSign;
       let targetIdx;
       for (let i = 0; i < currSign.m; i++) {
-        targetIdx = targetNode.next;
-        targetNode = user.signs[targetNode.next];
+        if (targetNode.next === null) {
+          break;
+        } else {
+          targetIdx = targetNode.next;
+          targetNode = user.signs[targetNode.next];
+        }
       }
 
       currSign.next = targetNode.next;

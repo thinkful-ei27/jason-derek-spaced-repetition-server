@@ -401,6 +401,33 @@ describe('Spaced Repetition - Users', function () {
         });
     });
 
+    it('should add the question to the end of the list if `m` is greater than the list length', function () {
+      const newGuess = {
+        guess: user.signs[user.head].answer,
+      };
+      const currSign = user.signs[user.head];
+      currSign.m = 6;
+      user.signs.set(user.head, currSign);
+      return user.save()
+        .then(() => {
+          return chai.request(app)
+            .post('/api/users/guess')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newGuess);
+        })
+        .then(res => {
+          expect(res).to.have.status(200);
+          expect(res.body.correct).to.equal(true);
+          return User.findOne({ username: user.username });
+        })
+        .then(updatedUser => {
+          expect(updatedUser.head).to.equal(1);
+          expect(updatedUser.signs[0].m).to.equal(12);
+          expect(updatedUser.signs[0].next).to.equal(null);
+          expect(updatedUser.signs[9].next).to.equal(0);
+        });
+    });
+
     it('should return an error when missing "guess" field', function () {
       const missingGuess = {
       };
