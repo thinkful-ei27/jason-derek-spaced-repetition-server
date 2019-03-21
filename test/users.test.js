@@ -274,6 +274,32 @@ describe('Spaced Repetition - Users', function () {
     });
   });
 
+  describe('GET /api/users/progress', function () {
+    it('should return a user object', function () {
+      return chai.request(app)
+        .get('/api/users/progress')
+        .set('Authorization', `Bearer ${token}`)
+        .then(res => {
+          const req = res.request;
+          expect(res).to.have.status(201);
+          expect(res).to.be.json;
+          expect(res.body).to.be.an('object');
+          expect(res.body).to.include.all.keys('head','guessesMade','guessesCorrect','learned','name','username','id');
+        });
+    });
+
+    it('should reject requests without authToken', function () {
+      return chai.request(app)
+        .get('/api/users/progress')
+        .then(res => {
+          expect(res).to.have.status(401);
+          expect(res).to.be.json;
+          expect(res.body).to.be.a('object');
+          expect(res.body.message).to.equal('Unauthorized');
+        });
+    });
+  });
+
   describe('GET /api/users/question', function () {
     it('should return the first sign', function () {
       return chai.request(app)
