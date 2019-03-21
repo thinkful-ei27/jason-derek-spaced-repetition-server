@@ -105,6 +105,15 @@ const validateTrimmedFields = (req, res, next) => {
   }
 };
 
+router.get('/progress', jwtAuth, (req, res, next) => {
+  const userID = req.user.id;
+  return User.findById(userID)
+  .then(user => {
+    res.status(201).json(user)
+  })
+  .catch(err => next(err))
+})
+
 router.post('/',
   validateRequiredFields,
   // validateStringFields must go before the others to ensure they get a string
@@ -143,6 +152,8 @@ router.get('/question', jwtAuth, (req, res, next) => {
     })
     .catch(err => next(err));
 });
+
+
 
 router.post('/guess', jwtAuth, (req, res, next) => {
   const userId = req.user.id;
