@@ -284,7 +284,7 @@ describe('Spaced Repetition - Users', function () {
           expect(res).to.have.status(201);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
-          expect(res.body).to.include.all.keys('head','guessesMade','guessesCorrect','learned','name','username','id');
+          expect(res.body).to.include.all.keys('head', 'guessesMade', 'guessesCorrect', 'learned', 'name', 'username', 'id');
         });
     });
 
@@ -331,9 +331,9 @@ describe('Spaced Repetition - Users', function () {
   });
 
   describe('POST /api/users/guess', function () {
-    it('should return true when given a correct guess', function () {
+    it('should return true when given a correct guess regardless of capitalization', function () {
       const newGuess = {
-        guess: user.signs[0].answer,
+        guess: user.signs[0].answer.toUpperCase(),
       };
       return chai.request(app)
         .post('/api/users/guess')
@@ -345,7 +345,7 @@ describe('Spaced Repetition - Users', function () {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.keys('correct', 'answer', 'guessesMade', 'guessesCorrect', 'sign', 'user');
           expect(res.body.correct).to.equal(true);
-          expect(res.body.answer).to.equal(newGuess.guess);
+          expect(res.body.answer).to.equal(newGuess.guess.toLowerCase());
           expect(res.body.guessesMade).to.equal(user.guessesMade + 1);
           expect(res.body.guessesCorrect).to.equal(user.guessesCorrect + 1);
           expect(res.body.sign.guessesMade).to.equal(user.signs[0].guessesMade + 1);

@@ -108,10 +108,10 @@ const validateTrimmedFields = (req, res, next) => {
 router.get('/progress', jwtAuth, (req, res, next) => {
   const userID = req.user.id;
   return User.findById(userID)
-  .then(user => {
-    res.status(201).json(user)
-  })
-  .catch(err => next(err))
+    .then(user => {
+      res.status(201).json(user)
+    })
+    .catch(err => next(err))
 })
 
 router.post('/',
@@ -174,7 +174,7 @@ router.post('/guess', jwtAuth, (req, res, next) => {
 
       // Get the answer and determine if it is correct
       answer = currSign.answer;
-      correct = guess === answer ? true : false;
+      correct = guess.toLowerCase() === answer ? true : false;
 
       // Update the score
       user.guessesMade = user.guessesMade + 1;
