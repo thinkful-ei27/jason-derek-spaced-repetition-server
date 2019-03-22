@@ -109,7 +109,9 @@ router.get('/progress', jwtAuth, (req, res, next) => {
   const userID = req.user.id;
   return User.findById(userID)
     .then(user => {
-      res.status(201).json(user)
+      res.status(201).json({ guessesMade: user.guessesMade, guessesCorrect: user.guessesCorrect, learned: user.learned.map(sign => {
+        let title = sign.sign;
+        return `${req.protocol}://${req.get('host')}/signs/${title}`})})
     })
     .catch(err => next(err))
 })
