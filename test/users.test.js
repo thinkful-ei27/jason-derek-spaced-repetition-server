@@ -284,7 +284,7 @@ describe('Spaced Repetition - Users', function () {
           expect(res).to.have.status(201);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
-          expect(res.body).to.include.all.keys('head', 'guessesMade', 'guessesCorrect', 'learned', 'name', 'username', 'id');
+          expect(res.body).to.include.all.keys( 'guessesMade', 'guessesCorrect', 'learned');
         });
     });
 
