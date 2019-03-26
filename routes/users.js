@@ -1,19 +1,21 @@
-const express = require('express');
-const passport = require('passport');
-const User = require('../models/user');
-const signs = require('../db/signs');
+const express = require("express");
+const passport = require("passport");
+const User = require("../models/user");
+const signs = require("../db/signs");
 
 const router = express.Router();
-const jwtAuth = passport.authenticate('jwt', { session: false, failWithError: true });
+const jwtAuth = passport.authenticate("jwt", {
+  session: false,
+  failWithError: true
+});
 
 const createDigest = (req, res, next) => {
   const { password } = req.body;
   if (password) {
-    User.hashPassword(password)
-      .then(digest => {
-        req.body.digest = digest;
-        return next();
-      });
+    User.hashPassword(password).then(digest => {
+      req.body.digest = digest;
+      return next();
+    });
   } else {
     return next();
   }
@@ -33,21 +35,27 @@ const validateFieldSizes = (req, res, next) => {
   });
 
   const tooSmallField = Object.keys(objToTest).find(
-    field => 'min' in sizedFields[field] &&
+    field =>
+      "min" in sizedFields[field] &&
       req.body[field].trim().length < sizedFields[field].min
   );
 
   const tooLargeField = Object.keys(objToTest).find(
-    field => 'max' in sizedFields[field] &&
+    field =>
+      "max" in sizedFields[field] &&
       req.body[field].trim().length > sizedFields[field].max
   );
 
   if (tooSmallField || tooLargeField) {
-    const num = tooSmallField ? sizedFields[tooSmallField].min : sizedFields[tooLargeField].max;
-    const err = new Error('');
+    const num = tooSmallField
+      ? sizedFields[tooSmallField].min
+      : sizedFields[tooLargeField].max;
+    const err = new Error("");
     err.status = 422;
-    err.reason = 'ValidationError';
-    err.message = `Must be at ${tooSmallField ? 'least' : 'most'} ${num} characters long`;
+    err.reason = "ValidationError";
+    err.message = `Must be at ${
+      tooSmallField ? "least" : "most"
+    } ${num} characters long`;
     err.location = tooSmallField || tooLargeField;
     return next(err);
   } else {
@@ -56,13 +64,13 @@ const validateFieldSizes = (req, res, next) => {
 };
 
 const validateRequiredFields = (req, res, next) => {
-  const requiredFields = ['password', 'username'];
+  const requiredFields = ["password", "username"];
   const missingField = requiredFields.find(field => !(field in req.body));
 
   if (missingField) {
-    const err = new Error('Missing field');
+    const err = new Error("Missing field");
     err.status = 422;
-    err.reason = 'ValidationError';
+    err.reason = "ValidationError";
     err.location = missingField;
     return next(err);
   } else {
@@ -71,15 +79,15 @@ const validateRequiredFields = (req, res, next) => {
 };
 
 const validateStringFields = (req, res, next) => {
-  const stringFields = ['name', 'password', 'username'];
+  const stringFields = ["name", "password", "username"];
   const nonStringField = stringFields.find(
-    field => field in req.body && typeof req.body[field] !== 'string'
+    field => field in req.body && typeof req.body[field] !== "string"
   );
 
   if (nonStringField) {
-    const err = new Error('Incorrect field type: expected string');
+    const err = new Error("Incorrect field type: expected string");
     err.status = 422;
-    err.reason = 'ValidationError';
+    err.reason = "ValidationError";
     err.location = nonStringField;
     return next(err);
   } else {
@@ -88,16 +96,18 @@ const validateStringFields = (req, res, next) => {
 };
 
 const validateTrimmedFields = (req, res, next) => {
-  const explicitlyTrimmedFields = ['username', 'password'];
-  const fieldsToTest = explicitlyTrimmedFields.filter(field => field in req.body);
+  const explicitlyTrimmedFields = ["username", "password"];
+  const fieldsToTest = explicitlyTrimmedFields.filter(
+    field => field in req.body
+  );
   const nonTrimmedField = fieldsToTest.find(
     field => req.body[field].trim() !== req.body[field]
   );
 
   if (nonTrimmedField) {
-    const err = new Error('Cannot start or end with whitespace');
+    const err = new Error("Cannot start or end with whitespace");
     err.status = 422;
-    err.reason = 'ValidationError';
+    err.reason = "ValidationError";
     err.location = nonTrimmedField;
     return next(err);
   } else {
@@ -105,18 +115,24 @@ const validateTrimmedFields = (req, res, next) => {
   }
 };
 
-router.get('/progress', jwtAuth, (req, res, next) => {
+router.get("/progress", jwtAuth, (req, res, next) => {
   const userID = req.user.id;
   return User.findById(userID)
     .then(user => {
-      res.status(201).json({ guessesMade: user.guessesMade, guessesCorrect: user.guessesCorrect, learned: user.learned.map(sign => {
-        let title = sign.sign;
-        return `${req.protocol}://${req.get('host')}/signs/${title}`})})
+      res.status(201).json({
+        guessesMade: user.guessesMade,
+        guessesCorrect: user.guessesCorrect,
+        learned: user.learned.map(sign => {
+          let title = sign.sign;
+          return `https://${req.get("host")}/signs/${title}`;
+        })
+      });
     })
-    .catch(err => next(err))
-})
+    .catch(err => next(err));
+});
 
-router.post('/',
+router.post(
+  "/",
   validateRequiredFields,
   // validateStringFields must go before the others to ensure they get a string
   validateStringFields,
@@ -124,46 +140,46 @@ router.post('/',
   validateTrimmedFields,
   createDigest,
   (req, res, next) => {
-    let { digest, name = '', username } = req.body;
+    let { digest, name = "", username } = req.body;
     name = name.trim();
 
-    return User
-      .create({
-        name,
-        password: digest,
-        username,
-        signs: signs,
-      })
+    return User.create({
+      name,
+      password: digest,
+      username,
+      signs: signs
+    })
       .then(user => res.status(201).json(user))
       .catch(err => {
         if (err.code === 11000) {
-          err = new Error('Username already taken');
+          err = new Error("Username already taken");
           err.status = 422;
-          err.reason = 'ValidationError';
-          err.location = 'username';
+          err.reason = "ValidationError";
+          err.location = "username";
         }
         next(err);
       });
-  });
+  }
+);
 
-router.get('/question', jwtAuth, (req, res, next) => {
+router.get("/question", jwtAuth, (req, res, next) => {
   const userId = req.user.id;
   return User.findById(userId)
     .then(user => {
-      res.json({ sign: `${req.protocol}://${req.get('host')}/signs/${user.signs[user.head].sign}` });
+      res.json({
+        sign: `https://${req.get("host")}/signs/${user.signs[user.head].sign}`
+      });
     })
     .catch(err => next(err));
 });
 
-
-
-router.post('/guess', jwtAuth, (req, res, next) => {
+router.post("/guess", jwtAuth, (req, res, next) => {
   const userId = req.user.id;
   const { guess } = req.body;
   let answer, correct, currSign;
 
   if (!guess) {
-    const err = new Error('Missing `guess` in request body');
+    const err = new Error("Missing `guess` in request body");
     err.status = 400;
     return next(err);
   }
@@ -180,10 +196,18 @@ router.post('/guess', jwtAuth, (req, res, next) => {
 
       // Update the score
       user.guessesMade = user.guessesMade + 1;
-      user.guessesCorrect = correct ? user.guessesCorrect + 1 : user.guessesCorrect;
-      currSign.guessesMade = currSign.guessesMade ? currSign.guessesMade + 1 : 1;
-      currSign.guessesCorrect = currSign.guessesCorrect ? currSign.guessesCorrect : 0;
-      currSign.guessesCorrect = correct ? currSign.guessesCorrect + 1 : currSign.guessesCorrect;
+      user.guessesCorrect = correct
+        ? user.guessesCorrect + 1
+        : user.guessesCorrect;
+      currSign.guessesMade = currSign.guessesMade
+        ? currSign.guessesMade + 1
+        : 1;
+      currSign.guessesCorrect = currSign.guessesCorrect
+        ? currSign.guessesCorrect
+        : 0;
+      currSign.guessesCorrect = correct
+        ? currSign.guessesCorrect + 1
+        : currSign.guessesCorrect;
 
       // Update the linked list
       if (correct) {
@@ -213,14 +237,18 @@ router.post('/guess', jwtAuth, (req, res, next) => {
       user.head = nextIdx;
 
       // Add/remove learned words
-      const learnedIndex = user.learned.findIndex(i => i.sign === currSign.sign);
+      const learnedIndex = user.learned.findIndex(
+        i => i.sign === currSign.sign
+      );
       if (currSign.m >= 16) {
         const learnedObj = {
           sign: currSign.sign,
           guessesMade: currSign.guessesMade,
-          guessesCorrect: currSign.guessesCorrect,
+          guessesCorrect: currSign.guessesCorrect
         };
-        learnedIndex !== -1 ? user.learned.set(learnedIndex, learnedObj) : user.learned.push(learnedObj);
+        learnedIndex !== -1
+          ? user.learned.set(learnedIndex, learnedObj)
+          : user.learned.push(learnedObj);
       } else {
         if (learnedIndex !== -1) {
           user.learned.splice(learnedIndex, 1);
@@ -241,13 +269,13 @@ router.post('/guess', jwtAuth, (req, res, next) => {
           answer,
           correct,
           guessesMade: currSign.guessesMade,
-          guessesCorrect: currSign.guessesCorrect,
+          guessesCorrect: currSign.guessesCorrect
         },
         user: {
           guessesMade,
           guessesCorrect,
-          learned,
-        },
+          learned
+        }
       });
     })
     .catch(err => next(err));
