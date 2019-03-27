@@ -14,12 +14,12 @@ This application allows users to test and expand their knowledge of road signs, 
 
 ## Technology Stack
 Front-end technologies
-	React, Redux, React Router
+	• React, Redux, React Router
 Server technologies
-	​Node.js, Express, Bcrypt, JWT, Mongoose, Passport
+	• Node.js, Express, Bcrypt, JWT, Mongoose, Passport
 Data Persistence
-	​Mongo
+	• Mongo
 Hosting/SaaS
-	​​Heroku
-​Development Environment
-	Mocha & Chai
+	• Heroku
+Development Environment
+	• Mocha & Chai
