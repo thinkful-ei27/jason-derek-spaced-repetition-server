@@ -1,8 +1,8 @@
 # Traffic's Cool API
 
 This is part of Jason Hoffman and Derek Houck's Spaced Repetition project. 
-You can view the live app at https://traffics-cool.herokuapp.com/. 
-The client code can be found at https://github.com/thinkful-ei27/traffics-cool.
+You can view the live app at https://www.traffics.cool/. 
+The client code can be found at https://github.com/publikwerker/traffics-cool.
 
 The project goal was to devise an app to help users learn a language through the use of spaced repetition.
 We chose to use a common visual language: that of traffic signage in the US.
